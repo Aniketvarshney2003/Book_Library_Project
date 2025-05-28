@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Book Library</title>
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>My Book Library</h1>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by title or category" oninput="searchBooks()">
+        </div>
+
+        <div class="book-form">
+            <input type="text" id="title" placeholder="Book Title">
+            <input type="text" id="category" placeholder="Category">
+            <button onclick="addBook()">Add Book</button>
+        </div>
+
+        <div class="book-list" id="bookList">
+            <!-- Books will appear here -->
+        </div>
+    </div>
+    <script>
+        let books = [];
+
+        function addBook() {
+            const title = document.getElementById('title').value.trim();
+            const category = document.getElementById('category').value.trim();
+
+            if (title === '' || category === '') {
+                alert('Please fill out both fields.');
+                return;
+            }
+
+            books.push({ title, category, borrowedDates: [] });
+            document.getElementById('title').value = '';
+            document.getElementById('category').value = '';
+            renderBooks();
+        }
+
+        function renderBooks(filter = '') {
+            const list = document.getElementById('bookList');
+            list.innerHTML = '';
+            const filteredBooks = books.filter(book =>
+                book.title.toLowerCase().includes(filter.toLowerCase()) ||
+                book.category.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filteredBooks.length === 0) {
+                list.innerHTML = '<p>No books found.</p>';
+                return;
+            }
+
+            filteredBooks.forEach((book, index) => {
+                const bookDiv = document.createElement('div');
+                bookDiv.className = 'book';
+                bookDiv.innerHTML = `
+                    <strong>${book.title}</strong> <em>(${book.category})</em><br>
+                    Borrowing History: ${book.borrowedDates.join(', ') || 'None'}<br>
+                    <button onclick="borrowBook(${index})">Borrow</button>
+                `;
+                list.appendChild(bookDiv);
+            });
+        }
+
+        function searchBooks() {
+            const query = document.getElementById('searchInput').value;
+            renderBooks(query);
+        }
+
+        function borrowBook(index) {
+            const date = new Date().toLocaleDateString();
+            books[index].borrowedDates.push(date);
+            renderBooks(document.getElementById('searchInput').value);
+        }
+    </script>
+</body>
+</html>
